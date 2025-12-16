@@ -217,6 +217,9 @@
             <p id="fatPercentage"></p>
             <p id="leanMass"></p>
             <p id="category" style="font-size: 1.2rem; margin-top: 15px;"></p>
+            <button type="button" class="btn btn-success w-100 mt-3" onclick="sendToTelegram()" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border: none; padding: 12px; font-weight: 600; border-radius: 10px; box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);">
+                📤 Enviar Datos a Telegram
+            </button>
         </div>
         
         <div class="table-container">
@@ -356,6 +359,20 @@
             const fatMass = weight - leanMass;
             const category = getCategory(fatPercentage, gender);
 
+            // Guardar datos para enviar
+            window.lastCalculation = {
+                gender: gender === 'male' ? 'Hombre' : 'Mujer',
+                weight,
+                height,
+                waist,
+                neck,
+                hip: gender === 'female' ? hip : null,
+                fatPercentage,
+                leanMass,
+                fatMass,
+                category
+            };
+
             document.getElementById('fatPercentage').innerHTML = `<strong>Porcentaje de Grasa Corporal:</strong> ${fatPercentage}% (${fatMass.toFixed(2)} kg)`;
             document.getElementById('leanMass').innerHTML = `<strong>Masa Corporal Magra:</strong> ${leanMass.toFixed(2)} kg`;
             document.getElementById('category').innerHTML = `<strong>Categoría:</strong> ${category}`;
@@ -363,6 +380,32 @@
             const resultDiv = document.getElementById('result');
             resultDiv.style.display = 'block';
             resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function sendToTelegram() {
+            if (!window.lastCalculation) {
+                alert('⚠️ Por favor, calcula primero tus resultados.');
+                return;
+            }
+
+            const data = window.lastCalculation;
+            let message = `🏋️ *RESULTADOS DE CALCULADORA DE GRASA CORPORAL*%0A%0A`;
+            message += `👤 *Género:* ${data.gender}%0A`;
+            message += `⚖️ *Peso:* ${data.weight} kg%0A`;
+            message += `📏 *Altura:* ${data.height} cm%0A`;
+            message += `📐 *Cintura:* ${data.waist} cm%0A`;
+            message += `📐 *Cuello:* ${data.neck} cm%0A`;
+            if (data.hip) {
+                message += `📐 *Cadera:* ${data.hip} cm%0A`;
+            }
+            message += `%0A📊 *RESULTADOS:*%0A`;
+            message += `🔸 *Porcentaje de Grasa:* ${data.fatPercentage}%25%0A`;
+            message += `🔸 *Masa de Grasa:* ${data.fatMass.toFixed(2)} kg%0A`;
+            message += `🔸 *Masa Magra:* ${data.leanMass.toFixed(2)} kg%0A`;
+            message += `🔸 *Categoría:* ${data.category}`;
+
+            const telegramUrl = `https://t.me/HARVEY_SARMIENTO?text=${message}`;
+            window.open(telegramUrl, '_blank');
         }
     </script>
 </body>
