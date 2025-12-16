@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Porcentaje de Grasa Corporal y Masa Muscular</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+            margin-bottom: 40px;
+            font-size: 2rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        #hipGroup {
+            display: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        #result h4 {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        #result p {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .table-container {
+            margin-top: 50px;
+            overflow-x: auto;
+        }
+        h4.section-title {
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+        }
+        tbody tr {
+            transition: background 0.3s;
+        }
+        tbody tr:hover {
+            background: #f5f7fa;
+        }
+        .guide-section {
+            margin-top: 50px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+        .measurement-guide {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+        .measurement-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        .measurement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .measurement-card h5 {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .measurement-card p {
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+        }
+        .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 15px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .measurement-guide {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏋️ Calculadora de Porcentaje de Grasa Corporal y Masa Muscular</h1>
+        
+        <form id="calcForm">
+            <div class="mb-3">
+                <label for="gender" class="form-label">👤 Género</label>
+                <select class="form-select" id="gender" required>
+                    <option value="">Selecciona tu género</option>
+                    <option value="male">Hombre</option>
+                    <option value="female">Mujer</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="weight" class="form-label">⚖️ Peso (kg)</label>
+                <input type="number" step="0.1" class="form-control" id="weight" placeholder="Ej: 70.5" required>
+            </div>
+            <div class="mb-3">
+                <label for="height" class="form-label">📏 Altura (cm)</label>
+                <input type="number" step="0.1" class="form-control" id="height" placeholder="Ej: 175" required>
+            </div>
+            <div class="mb-3">
+                <label for="waist" class="form-label">📐 Cintura (cm)</label>
+                <input type="number" step="0.1" class="form-control" id="waist" placeholder="Ej: 85" required>
+            </div>
+            <div class="mb-3">
+                <label for="neck" class="form-label">📐 Cuello (cm)</label>
+                <input type="number" step="0.1" class="form-control" id="neck" placeholder="Ej: 38" required>
+            </div>
+            <div class="mb-3" id="hipGroup">
+                <label for="hip" class="form-label">📐 Cadera (cm)</label>
+                <input type="number" step="0.1" class="form-control" id="hip" placeholder="Ej: 95" required>
+            </div>
+            <button type="button" class="btn btn-primary w-100" onclick="calculate()">Calcular Resultados</button>
+        </form>
+        
+        <div id="result" style="display: none;">
+            <h4>📊 Tus Resultados:</h4>
+            <p id="fatPercentage"></p>
+            <p id="leanMass"></p>
+            <p id="category" style="font-size: 1.2rem; margin-top: 15px;"></p>
+        </div>
+        
+        <div class="table-container">
+            <h4 class="section-title">📈 Tabla de Rangos de Porcentaje de Grasa Corporal</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Mujeres</th>
+                        <th>Hombres</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Grasa esencial</strong></td>
+                        <td>10-12%</td>
+                        <td>2-4%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Atleta</strong></td>
+                        <td>14-20%</td>
+                        <td>6-13%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fitness</strong></td>
+                        <td>21-24%</td>
+                        <td>14-17%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Aceptable</strong></td>
+                        <td>25-31%</td>
+                        <td>18-25%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Obesidad</strong></td>
+                        <td>32% o más</td>
+                        <td>26% o más</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="guide-section">
+            <h4 class="section-title">📋 Guía para Tomar las Medidas Correctamente</h4>
+            <div class="measurement-guide">
+                <div class="measurement-card">
+                    <div class="icon">📏</div>
+                    <h5>Altura</h5>
+                    <p>Mide tu altura descalzo, de pie contra una pared, con la espalda recta y mirando al frente. Marca el punto más alto de tu cabeza.</p>
+                </div>
+                <div class="measurement-card">
+                    <div class="icon">⚖️</div>
+                    <h5>Peso</h5>
+                    <p>Pésate por la mañana, después de ir al baño y antes de desayunar, con ropa ligera o sin ella para mayor precisión.</p>
+                </div>
+                <div class="measurement-card">
+                    <div class="icon">📐</div>
+                    <h5>Cintura</h5>
+                    <p>Mide en el punto más estrecho de tu cintura, generalmente a la altura del ombligo. Mantén la cinta métrica horizontal y respira normalmente.</p>
+                </div>
+                <div class="measurement-card">
+                    <div class="icon">📐</div>
+                    <h5>Cuello</h5>
+                    <p>Mide alrededor del cuello justo debajo de la nuez de Adán (hombres) o en la parte más estrecha del cuello (mujeres). No aprietes la cinta.</p>
+                </div>
+                <div class="measurement-card">
+                    <div class="icon">📐</div>
+                    <h5>Cadera (Mujeres)</h5>
+                    <p>Mide en la parte más ancha de las caderas, generalmente sobre los glúteos. Mantén la cinta métrica paralela al suelo.</p>
+                </div>
+                <div class="measurement-card">
+                    <div class="icon">💡</div>
+                    <h5>Consejos</h5>
+                    <p>Usa una cinta métrica flexible. Toma las medidas 2-3 veces y calcula el promedio. Mide siempre a la misma hora del día.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('gender').addEventListener('change', function() {
+            const hipGroup = document.getElementById('hipGroup');
+            if (this.value === 'female') {
+                hipGroup.style.display = 'block';
+                document.getElementById('hip').required = true;
+            } else {
+                hipGroup.style.display = 'none';
+                document.getElementById('hip').required = false;
+            }
+        });
+
+        function getCategory(fatPercentage, gender) {
+            if (gender === 'male') {
+                if (fatPercentage <= 4) return '🏆 Grasa esencial';
+                if (fatPercentage <= 13) return '🥇 Atleta';
+                if (fatPercentage <= 17) return '💪 Fitness';
+                if (fatPercentage <= 25) return '✅ Aceptable';
+                return '⚠️ Obesidad';
+            } else {
+                if (fatPercentage <= 12) return '🏆 Grasa esencial';
+                if (fatPercentage <= 20) return '🥇 Atleta';
+                if (fatPercentage <= 24) return '💪 Fitness';
+                if (fatPercentage <= 31) return '✅ Aceptable';
+                return '⚠️ Obesidad';
+            }
+        }
+
+        function calculate() {
+            const gender = document.getElementById('gender').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const waist = parseFloat(document.getElementById('waist').value);
+            const neck = parseFloat(document.getElementById('neck').value);
+            let hip = 0;
+            if (gender === 'female') {
+                hip = parseFloat(document.getElementById('hip').value);
+            }
+
+            if (!gender || isNaN(weight) || isNaN(height) || isNaN(waist) || isNaN(neck) || (gender === 'female' && isNaN(hip))) {
+                alert('⚠️ Por favor, completa todos los campos requeridos.');
+                return;
+            }
+
+            let fatPercentage;
+            if (gender === 'male') {
+                const logAbdomenNeck = Math.log10(waist - neck);
+                const logHeight = Math.log10(height);
+                fatPercentage = 495 / (1.0324 - 0.19077 * logAbdomenNeck + 0.15456 * logHeight) - 450;
+            } else {
+                const logAbdomenHipNeck = Math.log10(waist + hip - neck);
+                const logHeight = Math.log10(height);
+                fatPercentage = 495 / (1.29579 - 0.35004 * logAbdomenHipNeck + 0.22100 * logHeight) - 450;
+            }
+
+            fatPercentage = Math.round(fatPercentage * 100) / 100;
+            const leanMass = weight * (100 - fatPercentage) / 100;
+            const fatMass = weight - leanMass;
+            const category = getCategory(fatPercentage, gender);
+
+            document.getElementById('fatPercentage').innerHTML = `<strong>Porcentaje de Grasa Corporal:</strong> ${fatPercentage}% (${fatMass.toFixed(2)} kg)`;
+            document.getElementById('leanMass').innerHTML = `<strong>Masa Corporal Magra:</strong> ${leanMass.toFixed(2)} kg`;
+            document.getElementById('category').innerHTML = `<strong>Categoría:</strong> ${category}`;
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
