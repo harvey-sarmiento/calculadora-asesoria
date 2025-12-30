@@ -418,7 +418,7 @@
                     <div class="step-number">PASO 1 de 5</div>
                     <h3>📹 Video de Bienvenida</h3>
                     <p>Antes de comenzar, mira este video donde te explico todo sobre tu programa personalizado:</p>
-                   
+                  
                     <div class="video-container">
                         <iframe src="https://www.youtube.com/embed/hhZSW9PtpEc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
@@ -463,6 +463,14 @@
                     <div class="form-group">
                         <label>Edad *</label>
                         <input type="number" id="edad" placeholder="Ej: 28" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Género *</label>
+                        <select id="genero" required>
+                            <option value="">Selecciona</option>
+                            <option value="Hombre">Hombre</option>
+                            <option value="Mujer">Mujer</option>
+                        </select>
                     </div>
                     <div class="button-group">
                         <button class="btn btn-secondary" onclick="prevStep(1)">← Atrás</button>
@@ -632,7 +640,8 @@
             const altura = document.getElementById('altura').value;
             const peso = document.getElementById('peso').value;
             const edad = document.getElementById('edad').value;
-            if (!nombre || !cuello || !cintura || !cadera || !altura || !peso || !edad) {
+            const genero = document.getElementById('genero').value;
+            if (!nombre || !cuello || !cintura || !cadera || !altura || !peso || !edad || !genero) {
                 alert('Por favor completa todos los campos obligatorios');
                 return;
             }
@@ -643,6 +652,7 @@
             userData.altura = altura;
             userData.peso = peso;
             userData.edad = edad;
+            userData.genero = genero;
             nextStep(3);
         }
         function saveCuestionario() {
@@ -667,7 +677,30 @@
             mostrarResumen();
             nextStep(5);
         }
+        function calcularGrasaCorporal() {
+            const cuelloCm = parseFloat(userData.cuello);
+            const cinturaCm = parseFloat(userData.cintura);
+            const caderaCm = parseFloat(userData.cadera);
+            const alturaCm = parseFloat(userData.altura);
+            const genero = userData.genero;
+
+            const cuelloIn = cuelloCm / 2.54;
+            const cinturaIn = cinturaCm / 2.54;
+            const caderaIn = caderaCm / 2.54;
+            const alturaIn = alturaCm / 2.54;
+
+            let grasaPorcentaje = 0;
+
+            if (genero === 'Hombre') {
+                grasaPorcentaje = 86.010 * Math.log10(cinturaIn - cuelloIn) - 70.041 * Math.log10(alturaIn) + 36.76;
+            } else if (genero === 'Mujer') {
+                grasaPorcentaje = 163.205 * Math.log10(cinturaIn + caderaIn - cuelloIn) - 97.684 * Math.log10(alturaIn) - 78.387;
+            }
+
+            return grasaPorcentaje.toFixed(1);
+        }
         function mostrarResumen() {
+            const grasaPorcentaje = calcularGrasaCorporal();
             const resumen = `
                 <h4 style="color: #f093fb; margin-bottom: 0.8rem;">📋 TUS DATOS:</h4>
                 <p><strong>Nombre:</strong> ${userData.nombre}</p>
@@ -677,7 +710,8 @@
                 <p><strong>Cuello:</strong> ${userData.cuello} cm</p>
                 <p><strong>Cintura:</strong> ${userData.cintura} cm</p>
                 <p><strong>Cadera:</strong> ${userData.cadera} cm</p>
-               
+                <p><strong>% Grasa Corporal:</strong> ${grasaPorcentaje}%</p>
+              
                 <h4 style="color: #f093fb; margin: 1rem 0 0.8rem;">🎯 TU META:</h4>
                 <p><strong>Objetivo:</strong> ${userData.objetivo}</p>
                 <p><strong>Nivel:</strong> ${userData.nivel}</p>
@@ -690,6 +724,7 @@
             document.getElementById('resumen').innerHTML = resumen;
         }
         function enviarATelegram() {
+            const grasaPorcentaje = calcularGrasaCorporal();
             const mensaje = `🎯 NUEVA INSCRIPCIÓN - ASESORÍA PERSONALIZADA
 👤 DATOS PERSONALES:
 ━━━━━━━━━━━━━━━
@@ -702,6 +737,7 @@
 • Cuello: ${userData.cuello} cm
 • Cintura: ${userData.cintura} cm
 • Cadera: ${userData.cadera} cm
+• % Grasa Corporal: ${grasaPorcentaje}%
 🎯 OBJETIVO Y META:
 ━━━━━━━━━━━━━━━
 ${userData.objetivo}
